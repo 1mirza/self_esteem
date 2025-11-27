@@ -1,0 +1,39 @@
+name: self_esteam_mirza
+description: A Flutter app for self-esteem improvement.
+publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # The following adds the Cupertino Icons font to your application.
+  # Use with the CupertinoIcons class for iOS style icons.
+  cupertino_icons: ^1.0.2
+  
+  # پکیج مورد نیاز برای فرمت‌دهی تاریخ و ساعت
+  intl: ^0.19.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  # The "flutter_lints" package is used to encourage good coding practices.
+  flutter_lints: ^3.0.0
+
+flutter:
+  uses-material-design: true
+
+  # تنظیمات فونت فارسی (وزیرمتن)
+  # ابتدا یک پوشه به نام assets در روت پروژه و داخل آن پوشه fonts بسازید
+  # فایل فونت را داخل آن قرار دهید
+  fonts:
+    - family: Vazirmatn
+      fonts:
+        - asset: assets/fonts/Vazirmatn-Regular.ttf
+        - asset: assets/fonts/Vazirmatn-Bold.ttf
+          weight: 700
