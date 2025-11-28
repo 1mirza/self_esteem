@@ -1,19 +1,34 @@
 import 'package:flutter/material.dart';
+import '../models/data_models.dart';
+import '../../main.dart'; // برای دسترسی به themeNotifier
 
 class SettingsScreen extends StatefulWidget {
-  const SettingsScreen({super.key});
+  final AppSettings? settings;
+
+  const SettingsScreen({super.key, this.settings});
 
   @override
   State<SettingsScreen> createState() => _SettingsScreenState();
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
-  // متغیرهای وضعیت (برای دمو)
-  bool _dailyReminder = true;
-  bool _nightReminder = true;
-  bool _darkMode = false;
-  TimeOfDay _morningTime = const TimeOfDay(hour: 9, minute: 0);
-  TimeOfDay _nightTime = const TimeOfDay(hour: 23, minute: 0);
+  // متغیرهای وضعیت
+  late bool _dailyReminder;
+  late bool _nightReminder;
+  late TimeOfDay _morningTime;
+  late TimeOfDay _nightTime;
+
+  @override
+  void initState() {
+    super.initState();
+    // مقداردهی اولیه (در یک اپ واقعی این‌ها از دیتابیس خوانده می‌شوند)
+    _dailyReminder = widget.settings?.isDailyCheckInEnabled ?? true;
+    _nightReminder = widget.settings?.isNightReminderEnabled ?? true;
+    _morningTime =
+        widget.settings?.morningReminder ?? const TimeOfDay(hour: 9, minute: 0);
+    _nightTime =
+        widget.settings?.nightReminder ?? const TimeOfDay(hour: 23, minute: 0);
+  }
 
   Future<void> _pickTime(bool isMorning) async {
     final TimeOfDay? picked = await showTimePicker(
@@ -28,6 +43,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         );
       },
     );
+
     if (picked != null) {
       setState(() {
         if (isMorning) {
@@ -36,28 +52,42 @@ class _SettingsScreenState extends State<SettingsScreen> {
           _nightTime = picked;
         }
       });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('ساعت یادآوری روی ${picked.format(context)} تنظیم شد.'),
+          backgroundColor: const Color(0xFF0F766E),
+          duration: const Duration(seconds: 2),
+        ),
+      );
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    // تشخیص تم فعلی
+    final isDark = themeNotifier.value == ThemeMode.dark;
+    final textColor = isDark ? Colors.white : Colors.black87;
+    final cardColor = isDark ? Colors.grey.shade900 : Colors.white;
+
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor:
+          isDark ? const Color(0xFF121212) : const Color(0xFFF8FAFC),
       appBar: AppBar(
-        title: const Text(
+        title: Text(
           'تنظیمات',
-          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black87),
+          style: TextStyle(fontWeight: FontWeight.bold, color: textColor),
         ),
         centerTitle: true,
-        backgroundColor: Colors.white,
+        backgroundColor: cardColor,
         elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.black87),
+        iconTheme: IconThemeData(color: textColor),
       ),
       body: ListView(
         padding: const EdgeInsets.all(20),
         children: [
           const Text(
-            'یادآوری‌ها',
+            'یادآوری‌های هوشمند',
             style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
@@ -65,14 +95,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
           const SizedBox(height: 16),
 
-          // یادآوری روزانه
+          // کارت یادآوری روزانه
           _buildSettingsCard(
+            color: cardColor,
             child: Column(
               children: [
                 SwitchListTile(
                   value: _dailyReminder,
                   onChanged: (v) => setState(() => _dailyReminder = v),
-                  title: const Text('یادآوری روزانه (مچ‌گیری)',
+                  title: const Text('یادآوری صبحگاهی (مچ‌گیری)',
                       style: TextStyle(fontWeight: FontWeight.bold)),
                   activeColor: const Color(0xFF0F766E),
                   secondary: Container(
@@ -83,28 +114,33 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     child: const Icon(Icons.wb_sunny, color: Colors.orange),
                   ),
                 ),
-                if (_dailyReminder)
+                if (_dailyReminder) ...[
+                  const Divider(indent: 60),
                   ListTile(
-                    title: const Text('زمان یادآوری'),
+                    title: const Text('زمان ارسال'),
                     trailing: Container(
                       padding: const EdgeInsets.symmetric(
                           horizontal: 12, vertical: 6),
                       decoration: BoxDecoration(
-                          color: Colors.grey.shade100,
+                          color: Colors.grey.withOpacity(0.1),
                           borderRadius: BorderRadius.circular(8)),
                       child: Text(_morningTime.format(context),
-                          style: const TextStyle(fontWeight: FontWeight.bold)),
+                          style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.blueGrey)),
                     ),
                     onTap: () => _pickTime(true),
                   ),
+                ]
               ],
             ),
           ),
 
           const SizedBox(height: 16),
 
-          // یادآوری شبانه
+          // کارت یادآوری شبانه
           _buildSettingsCard(
+            color: cardColor,
             child: Column(
               children: [
                 SwitchListTile(
@@ -122,27 +158,31 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         color: Colors.indigo),
                   ),
                 ),
-                if (_nightReminder)
+                if (_nightReminder) ...[
+                  const Divider(indent: 60),
                   ListTile(
-                    title: const Text('زمان یادآوری'),
+                    title: const Text('زمان ارسال'),
                     trailing: Container(
                       padding: const EdgeInsets.symmetric(
                           horizontal: 12, vertical: 6),
                       decoration: BoxDecoration(
-                          color: Colors.grey.shade100,
+                          color: Colors.grey.withOpacity(0.1),
                           borderRadius: BorderRadius.circular(8)),
                       child: Text(_nightTime.format(context),
-                          style: const TextStyle(fontWeight: FontWeight.bold)),
+                          style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.blueGrey)),
                     ),
                     onTap: () => _pickTime(false),
                   ),
+                ]
               ],
             ),
           ),
 
           const SizedBox(height: 32),
           const Text(
-            'ظاهر برنامه',
+            'شخصی‌سازی',
             style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
@@ -150,20 +190,24 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
           const SizedBox(height: 16),
 
+          // تنظیمات دارک مود
           _buildSettingsCard(
+            color: cardColor,
             child: SwitchListTile(
-              value: _darkMode,
-              onChanged: (v) => setState(() => _darkMode = v),
+              value: isDark,
+              onChanged: (val) {
+                // تغییر تم در کل برنامه
+                themeNotifier.value = val ? ThemeMode.dark : ThemeMode.light;
+              },
               title: const Text('حالت شب (Dark Mode)',
                   style: TextStyle(fontWeight: FontWeight.bold)),
-              subtitle: const Text('فعلاً در مرحله آزمایشی است'),
               activeColor: const Color(0xFF0F766E),
               secondary: Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
                     color: Colors.grey.withOpacity(0.2),
                     borderRadius: BorderRadius.circular(8)),
-                child: const Icon(Icons.dark_mode, color: Colors.black87),
+                child: const Icon(Icons.dark_mode),
               ),
             ),
           ),
@@ -179,6 +223,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           const SizedBox(height: 16),
 
           _buildSettingsCard(
+            color: cardColor,
             child: Column(
               children: [
                 const ListTile(
@@ -192,7 +237,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 const ListTile(
                   leading: Icon(Icons.code, color: Colors.purple),
                   title: Text('طراحی و توسعه'),
-                  subtitle: Text('حمیدرضا علی‌میرزایی'),
+                  subtitle: Text('حمیدرضا علی‌میرزایی',
+                      style: TextStyle(fontWeight: FontWeight.bold)),
                 ),
                 const Divider(),
                 ListTile(
@@ -215,7 +261,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           const SizedBox(height: 30),
           Center(
             child: Text(
-              'ساخته شده با ❤️ برای رشد شما',
+              'ساخته شده با ❤️ و علم روانشناسی',
               style: TextStyle(color: Colors.grey.shade400, fontSize: 12),
             ),
           ),
@@ -225,19 +271,19 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  Widget _buildSettingsCard({required Widget child}) {
+  Widget _buildSettingsCard({required Widget child, required Color color}) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: color,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.05),
+            color: Colors.black.withOpacity(0.05),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
         ],
-        border: Border.all(color: Colors.grey.shade100),
+        border: Border.all(color: Colors.grey.withOpacity(0.1)),
       ),
       child: child,
     );

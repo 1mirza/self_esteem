@@ -7,6 +7,8 @@ class AppSettings {
   TimeOfDay morningReminder;
   TimeOfDay nightReminder;
   bool enableNotifications;
+  bool isDailyCheckInEnabled;
+  bool isNightReminderEnabled;
 
   AppSettings({
     this.isDarkMode = false,
@@ -14,6 +16,8 @@ class AppSettings {
     this.morningReminder = const TimeOfDay(hour: 9, minute: 0),
     this.nightReminder = const TimeOfDay(hour: 23, minute: 0),
     this.enableNotifications = true,
+    this.isDailyCheckInEnabled = true,
+    this.isNightReminderEnabled = true,
   });
 }
 
@@ -23,9 +27,9 @@ class BookModel {
   final String title;
   final String author;
   final String category;
-  final String summary; // خلاصه طولانی
-  final List<String> keyLearnings; // نکات کلیدی
-  final List<String> realLifeExamples; // ۲۰ مثال واقعی
+  final String summary;
+  final List<String> keyLearnings;
+  final List<String> realLifeExamples;
   final Color coverColor;
   final IconData icon;
 
@@ -42,15 +46,17 @@ class BookModel {
   });
 }
 
-// مدل برنامه روزانه
+// مدل برنامه روزانه (آپدیت شده)
 class DayPlanModel {
   final int dayNumber;
   final String title;
   final String description;
-  final String lessonContent; // درس‌نامه
-  final String scientificSource; // منبع علمی
-  final BookModel? relatedBook; // کتاب مرتبط
-  final String exerciseType; // نوع ابزار: journaling, court, voice, ladder
+  final String lessonContent; // توضیحات درس
+  final List<String> lessonExamples; // ۵ مثال واقعی (جدید)
+  final String scientificSource; // منبع علمی (متد)
+  final String sourceBookName; // نام کتاب مرجع (جدید)
+  final BookModel? relatedBook;
+  final String exerciseType;
   final bool isLocked;
   final bool isCompleted;
 
@@ -59,7 +65,9 @@ class DayPlanModel {
     required this.title,
     required this.description,
     required this.lessonContent,
+    required this.lessonExamples, // فیلد جدید
     required this.scientificSource,
+    required this.sourceBookName, // فیلد جدید
     this.relatedBook,
     required this.exerciseType,
     this.isLocked = false,

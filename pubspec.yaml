@@ -17,6 +17,8 @@ dependencies:
   
   # پکیج مورد نیاز برای فرمت‌دهی تاریخ و ساعت
   intl: ^0.19.0
+  shared_preferences: ^2.5.3
+  flutter_local_notifications: ^19.5.0
 
 dev_dependencies:
   flutter_test:

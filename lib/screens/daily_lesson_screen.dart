@@ -34,36 +34,32 @@ class _DailyLessonScreenState extends State<DailyLessonScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.day.title, style: const TextStyle(fontSize: 16)),
+        title: Text(
+          widget.day.title,
+          style: const TextStyle(
+              color: Colors.black87, fontWeight: FontWeight.bold),
+        ),
         backgroundColor: Colors.white,
-        foregroundColor: Colors.black,
         elevation: 0,
+        iconTheme: const IconThemeData(color: Colors.black87),
+        bottom: TabBar(
+          controller: _tabController,
+          labelColor: const Color(0xFF0F766E),
+          indicatorColor: const Color(0xFF0F766E),
+          unselectedLabelColor: Colors.grey,
+          labelStyle: const TextStyle(
+              fontWeight: FontWeight.bold, fontFamily: 'Vazirmatn'),
+          tabs: const [
+            Tab(text: 'کلاس درس (یادگیری)', icon: Icon(Icons.school_outlined)),
+            Tab(text: 'تمرین عملی (اقدام)', icon: Icon(Icons.directions_run)),
+          ],
+        ),
       ),
-      body: Column(
+      body: TabBarView(
+        controller: _tabController,
         children: [
-          TabBar(
-            controller: _tabController,
-            labelColor: const Color(0xFF0F766E),
-            indicatorColor: const Color(0xFF0F766E),
-            unselectedLabelColor: Colors.grey,
-            tabs: const [
-              Tab(
-                  text: '۱. کلاس درس (یادگیری)',
-                  icon: Icon(Icons.school_outlined)),
-              Tab(
-                  text: '۲. تمرین عملی (اقدام)',
-                  icon: Icon(Icons.edit_note_outlined)),
-            ],
-          ),
-          Expanded(
-            child: TabBarView(
-              controller: _tabController,
-              children: [
-                _buildLearningTab(context),
-                _buildPracticeTab(),
-              ],
-            ),
-          ),
+          _buildLearningTab(context),
+          _buildPracticeTab(),
         ],
       ),
     );
@@ -73,7 +69,7 @@ class _DailyLessonScreenState extends State<DailyLessonScreen>
     return ListView(
       padding: const EdgeInsets.all(24),
       children: [
-        // متن درس
+        // متن اصلی درس
         Text(
           widget.day.lessonContent,
           style:
@@ -83,60 +79,89 @@ class _DailyLessonScreenState extends State<DailyLessonScreen>
 
         const SizedBox(height: 30),
 
-        // منبع علمی
+        // بخش مثال‌های واقعی
+        const Row(
+          children: [
+            Icon(Icons.lightbulb_outline, color: Colors.orange),
+            SizedBox(width: 8),
+            Text('مثال‌های واقعی در زندگی:',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          ],
+        ),
+        const SizedBox(height: 16),
+
+        // لیست مثال‌ها
+        ...widget.day.lessonExamples.map((example) => Container(
+              margin: const EdgeInsets.only(bottom: 12),
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.orange.withOpacity(0.05),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: Colors.orange.withOpacity(0.2)),
+              ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Icon(Icons.check_circle,
+                      size: 18, color: Colors.orange),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Text(
+                      example,
+                      style: const TextStyle(fontSize: 14, height: 1.6),
+                    ),
+                  ),
+                ],
+              ),
+            )),
+
+        const SizedBox(height: 30),
+
+        // کارت منبع علمی و کتاب
         Container(
-          padding: const EdgeInsets.all(12),
+          padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
             color: Colors.blue.shade50,
-            border: Border(
-                right: BorderSide(color: Colors.blue.shade800, width: 4)),
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: Colors.blue.shade200),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text('پشتوانه علمی:',
-                  style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.blue)),
-              const SizedBox(height: 4),
-              Text(widget.day.scientificSource,
-                  style: const TextStyle(
-                      fontSize: 12, fontStyle: FontStyle.italic)),
-            ],
-          ),
-        ),
-
-        const SizedBox(height: 20),
-
-        // بخش کتاب مرتبط (اگر وجود داشته باشد)
-        if (widget.day.relatedBook != null)
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: const Color(0xFFFFF7ED), // Orange-50
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: Colors.orange.shade200),
-            ),
-            child: Column(
-              children: [
-                const Icon(Icons.menu_book, color: Colors.orange, size: 40),
-                const SizedBox(height: 10),
-                const Text('کتاب پیشنهادی مرتبط',
+              const Row(
+                children: [
+                  Icon(Icons.menu_book, color: Colors.blue),
+                  SizedBox(width: 8),
+                  Text(
+                    'منبع علمی این درس',
                     style: TextStyle(
-                        fontWeight: FontWeight.bold, color: Colors.deepOrange)),
-                const SizedBox(height: 10),
-                Text(
-                  '"${widget.day.relatedBook!.title}"',
+                        fontWeight: FontWeight.bold,
+                        color: Colors.blue,
+                        fontSize: 16),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              RichText(
+                text: TextSpan(
                   style: const TextStyle(
-                      fontSize: 16, fontWeight: FontWeight.bold),
-                  textAlign: TextAlign.center,
+                      color: Colors.black87,
+                      fontSize: 14,
+                      height: 1.6,
+                      fontFamily: 'Vazirmatn'),
+                  children: [
+                    const TextSpan(
+                        text: 'پروتکل درمانی: ',
+                        style: TextStyle(fontWeight: FontWeight.bold)),
+                    TextSpan(text: '${widget.day.scientificSource}\n'),
+                    const TextSpan(
+                        text: 'کتاب مرجع: ',
+                        style: TextStyle(fontWeight: FontWeight.bold)),
+                    TextSpan(text: widget.day.sourceBookName),
+                  ],
                 ),
-                Text(
-                  'اثر ${widget.day.relatedBook!.author}',
-                  style: const TextStyle(color: Colors.grey, fontSize: 12),
-                ),
+              ),
+              if (widget.day.relatedBook != null) ...[
                 const SizedBox(height: 16),
                 SizedBox(
                   width: double.infinity,
@@ -151,30 +176,38 @@ class _DailyLessonScreenState extends State<DailyLessonScreen>
                       );
                     },
                     style: OutlinedButton.styleFrom(
-                      side: const BorderSide(color: Colors.orange),
+                      side: const BorderSide(color: Colors.blue),
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8)),
+                      backgroundColor: Colors.white,
                     ),
-                    child: const Text('خواندن خلاصه این کتاب',
-                        style: TextStyle(color: Colors.deepOrange)),
+                    child: const Text('مطالعه خلاصه کامل کتاب',
+                        style: TextStyle(color: Colors.blue)),
                   ),
-                )
-              ],
-            ),
+                ),
+              ]
+            ],
           ),
+        ),
 
         const SizedBox(height: 40),
-        ElevatedButton(
-          onPressed: () => _tabController.animateTo(1),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFF0F766E),
-            foregroundColor: Colors.white,
-            padding: const EdgeInsets.symmetric(vertical: 16),
-            shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+
+        // دکمه رفتن به تمرین
+        SizedBox(
+          width: double.infinity,
+          height: 50,
+          child: ElevatedButton(
+            onPressed: () => _tabController.animateTo(1),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF0F766E),
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12)),
+              elevation: 2,
+            ),
+            child: const Text('درس را یاد گرفتم، برویم سراغ تمرین',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
           ),
-          child: const Text('درس را یاد گرفتم، برویم سراغ تمرین',
-              style: TextStyle(fontSize: 16)),
         ),
         const SizedBox(height: 20),
       ],
@@ -182,19 +215,24 @@ class _DailyLessonScreenState extends State<DailyLessonScreen>
   }
 
   Widget _buildPracticeTab() {
-    // انتخاب ابزار مناسب بر اساس نوع تمرین تعریف شده در DayPlanModel
-    switch (widget.day.exerciseType) {
-      case 'journaling':
-        return const JournalTool();
-      case 'court':
-        return const MindCourtTool();
-      case 'voice':
-        return const AudioStudioTool();
-      case 'ladder':
-        return const LadderTool();
-      default:
-        return const Center(
-            child: Text('برای این روز تمرین عمومی در نظر گرفته شده است.'));
-    }
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Builder(builder: (context) {
+        // انتخاب ابزار مناسب بر اساس نوع تمرین
+        switch (widget.day.exerciseType) {
+          case 'journaling':
+            return const JournalTool();
+          case 'court':
+            return const MindCourtTool();
+          case 'voice':
+            return const AudioStudioTool();
+          case 'ladder':
+            return const LadderTool();
+          default:
+            return const Center(
+                child: Text('برای این روز تمرین عمومی در نظر گرفته شده است.'));
+        }
+      }),
+    );
   }
 }
