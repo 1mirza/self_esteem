@@ -22,6 +22,9 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
+        
+        // [FIX] فعال‌سازی Desugaring برای رفع خطای بیلد flutter_local_notifications
+        isCoreLibraryDesugaringEnabled = true
     }
 
     kotlinOptions {
@@ -34,6 +37,9 @@ android {
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+        
+        // برای پشتیبانی از MultiDex در صورت نیاز (معمولاً با Desugaring لازم می‌شود)
+        multiDexEnabled = true 
     }
 
     // 2. تعریف تنظیمات امضا (Signing Configs)
@@ -48,17 +54,17 @@ android {
 
     buildTypes {
         release {
-            // 3. استفاده از تنظیمات امضای release به جای debug
+            // 3. استفاده از تنظیمات امضای release
             signingConfig = signingConfigs.getByName("release")
-            
-            // (اختیاری) برای کاهش حجم برنامه، می‌توانید این دو خط را فعال کنید، 
-            // اما ممکن است نیاز به تنظیمات Proguard داشته باشد. فعلاً غیرفعال هستند.
-            // isMinifyEnabled = true
-            // isShrinkResources = true
         }
     }
 }
 
 flutter {
     source = "../.."
+}
+
+// [FIX] اضافه کردن کتابخانه Desugaring به وابستگی‌ها
+dependencies {
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.4")
 }
