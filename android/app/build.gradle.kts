@@ -64,7 +64,7 @@ flutter {
     source = "../.."
 }
 
-// [FIX] اضافه کردن کتابخانه Desugaring به وابستگی‌ها
+// [FIX] اضافه کردن کتابخانه Desugaring به وابستگی‌ها (نسخه به 2.1.4 ارتقا یافت)
 dependencies {
-    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.4")
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")
 }
